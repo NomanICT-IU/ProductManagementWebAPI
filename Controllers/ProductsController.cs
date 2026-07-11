@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ProductManagementWebAPI.Models;
 using ProductManagementWebAPI.Repository;
 
@@ -6,6 +7,7 @@ namespace ProductManagementWebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ProductsController : ControllerBase
     {
         private readonly IProductRepository _productRepository;
@@ -17,6 +19,7 @@ namespace ProductManagementWebAPI.Controllers
 
         // Get all products
         [HttpGet("")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllProduct()
         {
             var records = await _productRepository.GetAllProductAsync();
@@ -25,6 +28,7 @@ namespace ProductManagementWebAPI.Controllers
 
         // Get product by Id
         [HttpGet("{id:int}")]
+
         public async Task<IActionResult> GetProductById(int id)
         {
             var record = await _productRepository.GetProductByIdAsync(id);
@@ -35,6 +39,7 @@ namespace ProductManagementWebAPI.Controllers
 
         //add a new Product
         [HttpPost("")]
+
         public async Task<IActionResult> AddProduct([FromBody] ProductModel model)
         {
             var id = await _productRepository.AddProuctAsync(model);
@@ -43,6 +48,7 @@ namespace ProductManagementWebAPI.Controllers
 
         //update Product
         [HttpPut("{productId:int}")]
+
         public async Task<IActionResult> UpdateProduct(
          [FromRoute] int productId,
          [FromBody] ProductModel model)
@@ -57,6 +63,7 @@ namespace ProductManagementWebAPI.Controllers
 
         //Delete Product
         [HttpDelete("{productId:int}")]
+
         public async Task<IActionResult> DeleteProduct(int productId)
         {
             var deleted = await _productRepository.DeleteProductAsync(productId);
