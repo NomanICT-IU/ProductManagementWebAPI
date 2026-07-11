@@ -7,6 +7,7 @@ namespace ProductManagementWebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class AccountController : ControllerBase
     {
         private readonly IAccountRepository _accountRepository;
@@ -29,7 +30,7 @@ namespace ProductManagementWebAPI.Controllers
             return BadRequest(result.Errors);
         }
         [HttpPost("signin")]
-        [AllowAnonymous]
+
         public async Task<IActionResult> SignIn(SignInModel model)
         {
             if (!ModelState.IsValid)
