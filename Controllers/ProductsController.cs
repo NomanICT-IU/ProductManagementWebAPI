@@ -17,16 +17,17 @@ namespace ProductManagementWebAPI.Controllers
             _productRepository = productRepository;
         }
 
-        // Get all products
-        [HttpGet("")]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetAllProduct()
+
+        //[AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> GetProducts([FromQuery] ProductQueryParameters query)
         {
-            var records = await _productRepository.GetAllProductAsync();
-            return Ok(records);
+            var result = await _productRepository.GetAllProductAsync(query);
+
+            return Ok(result);
         }
 
-        // Get product by Id
+
         [HttpGet("{id:int}")]
 
         public async Task<IActionResult> GetProductById(int id)
@@ -37,7 +38,7 @@ namespace ProductManagementWebAPI.Controllers
             return Ok(record);
         }
 
-        //add a new Product
+
         [HttpPost("")]
 
         public async Task<IActionResult> AddProduct([FromBody] ProductModel model)
@@ -46,7 +47,7 @@ namespace ProductManagementWebAPI.Controllers
             return CreatedAtAction(nameof(GetProductById), new { id }, model);
         }
 
-        //update Product
+
         [HttpPut("{productId:int}")]
 
         public async Task<IActionResult> UpdateProduct(
@@ -61,7 +62,7 @@ namespace ProductManagementWebAPI.Controllers
             return Ok(updatedProduct);
         }
 
-        //Delete Product
+
         [HttpDelete("{productId:int}")]
 
         public async Task<IActionResult> DeleteProduct(int productId)

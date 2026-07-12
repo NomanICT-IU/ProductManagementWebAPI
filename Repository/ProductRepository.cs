@@ -17,14 +17,55 @@ namespace ProductManagementWebAPI.Repository
             _mapper = mapper;
         }
 
-        //get all Products
-        public async Task<List<ProductModel>> GetAllProductAsync()
+
+        public async Task<PagedResponse<ProductModel>> GetAllProductAsync(ProductQueryParameters query)
         {
-            var records = await _context.Products.ToListAsync();
-            return _mapper.Map<List<ProductModel>>(records);
+            IQueryable<Product> products = _context.Products.AsNoTracking();
+
+
+            if (!string.IsNullOrWhiteSpace(query.Search))
+            {
+                string search = query.Search.ToLower();
+
+                products = products.Where(x =>
+                    x.Name!.ToLower().Contains(search) ||
+                    x.Description!.ToLower().Contains(search));
+            }
+
+
+            products = (query.SortBy.ToLower(), query.SortOrder.ToLower()) switch
+            {
+                ("name", "desc") => products.OrderByDescending(x => x.Name),
+                ("name", _) => products.OrderBy(x => x.Name),
+
+                ("price", "desc") => products.OrderByDescending(x => x.Price),
+                ("price", _) => products.OrderBy(x => x.Price),
+
+                ("quantity", "desc") => products.OrderByDescending(x => x.Quantity),
+                ("quantity", _) => products.OrderBy(x => x.Quantity),
+
+                ("id", "desc") => products.OrderByDescending(x => x.Id),
+
+                _ => products.OrderBy(x => x.Id)
+            };
+
+            var totalRecords = await products.CountAsync();
+
+            var records = await products
+                .Skip((query.PageNumber - 1) * query.PageSize)
+                .Take(query.PageSize)
+                .ToListAsync();
+
+            return new PagedResponse<ProductModel>
+            {
+                Data = _mapper.Map<List<ProductModel>>(records),
+                PageNumber = query.PageNumber,
+                PageSize = query.PageSize,
+                TotalRecords = totalRecords
+            };
         }
 
-        //get product
+
 
         public async Task<ProductModel?> GetProductByIdAsync(int id)
         {
@@ -36,7 +77,7 @@ namespace ProductManagementWebAPI.Repository
 
         }
 
-        //add Book
+
         public async Task<int> AddProuctAsync(ProductModel model)
         {
             var newProduct = _mapper.Map<Product>(model);
@@ -48,7 +89,7 @@ namespace ProductManagementWebAPI.Repository
             return newProduct.Id;
         }
 
-        //Update Product
+
         public async Task<ProductModel?> UpdateProductAsync(int productId, ProductModel model)
         {
             var product = await _context.Products.FindAsync(productId);
@@ -63,7 +104,7 @@ namespace ProductManagementWebAPI.Repository
             return _mapper.Map<ProductModel>(product);
         }
 
-        //Delete Product
+
         public async Task<bool> DeleteProductAsync(int productId)
         {
             var product = await _context.Products.FindAsync(productId);
