@@ -37,6 +37,17 @@ namespace ProductManagementWebAPI
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAngular",
+                    policy =>
+                    {
+                        policy.WithOrigins("http://localhost:4200")
+                              .AllowAnyHeader()
+                              .AllowAnyMethod();
+                    });
+            });
+
             // Repository
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<IAccountRepository, AccountRepository>();
@@ -130,6 +141,7 @@ namespace ProductManagementWebAPI
             }
 
             app.UseHttpsRedirection();
+            app.UseCors("AllowAngular");
 
             app.UseAuthentication();
 
