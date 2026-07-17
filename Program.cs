@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ProductManagementWebAPI.Automapper;
 using ProductManagementWebAPI.Data;
+using ProductManagementWebAPI.Models;
 using ProductManagementWebAPI.Repository;
 using System.Text;
 
@@ -37,6 +38,13 @@ namespace ProductManagementWebAPI
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
 
+
+            // Repository
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+
+            //SignalR
+            builder.Services.AddSignalR();
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAngular",
@@ -48,9 +56,6 @@ namespace ProductManagementWebAPI
                     });
             });
 
-            // Repository
-            builder.Services.AddScoped<IProductRepository, ProductRepository>();
-            builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 
             // JWT Configuration
             var secretKey = builder.Configuration["JWT:Secret"]
@@ -148,6 +153,7 @@ namespace ProductManagementWebAPI
             app.UseAuthorization();
 
             app.MapControllers();
+            app.MapHub<NotificationHub>("/notificationHub");
 
             app.Run();
         }
