@@ -6,7 +6,7 @@ namespace ProductManagementWebAPI.Models
     {
         public async Task SendNotification(string user, string message)
         {
-            await Clients.All.SendAsync("ReceivedNotification", user, message);
+            await Clients.Others.SendAsync("ReceivedNotification", user, message);
         }
     }
 }
